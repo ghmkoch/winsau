@@ -1,1 +1,1 @@
-import build_in_tasks
+import __main__

@@ -2,7 +2,7 @@ from task import TaskManager, TaskParameter, TaskType, task, step
 import os
 
 
-@task('aegis', '')
+@task('aegisv1.18', 'aegis v1.18 by https://voat.co/u/thepower')
 class AegisTask(object):
     @property
     def user_regpath(self):
@@ -248,7 +248,7 @@ class AegisTask(object):
                      3083325, 3083710, 3083711, 3086255, 3088195, 3090045, 3093983, 3102810, 3102812, 3112343, 3112336,
                      3123862, 3135445, 3135449, 3138612, 3138615, 3139929, 3146449, 3150513, 3173040]
 
-        TaskManager.ps_uninstall_updates(data_uninstall)
+        TaskManager.uninstall_updates(data_uninstall)
         TaskManager.ps_hide_updates(data_hide)
         if next(TaskManager.sc_query('wuauserv'))['state'] == '4':
             TaskManager.net_stop('wuauserv')
