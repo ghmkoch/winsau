@@ -4,8 +4,8 @@ import os
 import subprocess
 
 from enum import Enum
-_logger = logger.Logger().get_logger('operations_process_controller')
 
+_logger = logger.Logger().get_logger('operations_process_controller')
 
 
 class ControllerException(Exception):
@@ -74,6 +74,13 @@ class WUSAController(ControllerBase):
         params = '"{}" /quiet /norestart'.format(path)
         return cls._execute(params, cls._exec_filter_nostr)
 
+    @classmethod
+    def wusa_uninstall(cls, kbnumber):
+        params = '/kb:{} /norestart /quiet /uninstall /quiet /norestart'.format(str(kbnumber))
+        return cls._execute(params, cls._exec_filter_nostr)
+
+
+# /kb:$kbnumber /norestart /quiet /uninstall
 
 class WMIController(ControllerBase):
     _BIN = 'wmic'
@@ -498,6 +505,7 @@ class NetstatController(ControllerBase):
     def netstat(cls):
         params = '-ano'
         return cls._execute(params, cls._exec_filter_netstat)
+
 
 class PowerShellController(ControllerBase):
     _BIN = 'powershell'
