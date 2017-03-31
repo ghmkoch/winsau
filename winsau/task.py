@@ -6,7 +6,7 @@ logger = logging.getLogger('task')
 
 class TaskType(IntEnum):
     ROOT = 0
-    SYSTEM = 1
+    FRAMEWORK = 1
     USER = 2
 
 
@@ -113,7 +113,10 @@ class Task(object):
         else:
             self._run_parameters()
             taskobj = self.cls(**self._inputs)
-        drawer = DrawProcess(self.name, len(steps))
+        if self._task_type == TaskType.FRAMEWORK:
+            drawer = DrawProcess(self.name, len(steps), DrawProcess.Strategy.DUMMY)
+        else:
+            drawer = DrawProcess(self.name, len(steps))
         res = None
         for i, (func_name, step_name, step_description) in enumerate(steps):
             cur = i + 1

@@ -1,5 +1,76 @@
 import collections
+import itertools
 import copy
+
+
+class Packed(object):
+    @classmethod
+    def unpack_zip_line(cls, value, *args, **kwargs):
+        return list(itertools.product(*[Packed(value=i, *args, **kwargs).unpacked() for i in value]))
+
+    @classmethod
+    def unpack_zip_lines(cls, value, *args, **kwargs):
+        res = []
+        for i in value:
+            for j in cls.unpack_zip_line(value=i, *args, **kwargs):
+                res.append(j)
+        return res
+        #[cls.unpack_zip_line(value=i, *args, **kwargs) for i in value]
+
+    def __init__(self, value, *args, **kwargs):
+        self._value = value
+        self._args = (args, kwargs)
+
+    def unpacked(self):
+        res = []
+        value = self._value
+        args, kwargs = self._args
+
+        if isinstance(value, basestring):
+            res += [i for i in Parser(text=value, *args, **kwargs).compiled_str()]
+        elif hasattr(value, '__iter__'):
+            for i in value:
+                for j in Packed(i, *args, **kwargs).unpacked():
+                    res.append(j)
+        else:
+            res.append(value)
+        return res
+
+    def iunpacked(self):
+        value = self._value
+        args, kwargs = self._args
+
+        if isinstance(value, basestring):
+            for i in Parser(text=value, *args, **kwargs).compiled_str():
+                yield i
+        elif hasattr(value, '__iter__'):
+            for i in value:
+                for j in Packed(i, *args, **kwargs).iunpacked():
+                    yield j
+        else:
+            yield value
+
+    def nest_unpacked(self):
+        value = self._value
+        args, kwargs = self._args
+
+        if isinstance(value, basestring):
+            return list(Parser(text=value, *args, **kwargs).compiled_str())
+        elif hasattr(value, '__iter__'):
+            return [Packed(i, *args, **kwargs).nest_unpacked() for i in value]
+        else:
+            return value
+
+    def inest_unpacked(self):
+        value = self._value
+        args, kwargs = self._args
+
+        if isinstance(value, basestring):
+            return Parser(text=value, *args, **kwargs).compiled_str()
+        elif hasattr(value, '__iter__'):
+            return (Packed(i, *args, **kwargs).inest_unpacked() for i in value)
+        else:
+            return value
 
 
 class Parser(object):

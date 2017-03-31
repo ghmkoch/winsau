@@ -133,8 +133,6 @@ class _MainMenuTable(_MainMenuBase):
         from colorclass import Color
         input = self._print_screen()
 
-
-
         while (int(input) > (len(self.tasks) - 1)) if input.isdigit() else True:
             input = self._print_screen(Color('{autored}INVALID INPUT "{}"{/autored}').format(input))
         TaskManager.run_by_name(self.tasks[int(input)][0])
@@ -179,12 +177,16 @@ class _ProcessDrawerBase(_IProcessDrawer):
 
 
 class _ProcessDrawerPrintPlain(_ProcessDrawerBase):
+    _level = 0
+
     def __init__(self, task_name, steps_count):
+        self.__class__._level += 1
         super(_ProcessDrawerPrintPlain, self).__init__(task_name, steps_count)
-        print "Task {} starting".format(self.task_name)
+        print "{}Task {} starting".format('  ' * self.__class__._level, self.task_name)
 
     def update(self, step_cur, step_name, step_description):
-        print '- Applying Step "{}.{}{}"({}/{})'.format(
+        print '{}- Applying Step "{}.{}{}"({}/{})'.format(
+            '  ' * self.__class__._level,
             self.task_name,
             step_name,
             ":{}".format(step_description) if step_description else '',
@@ -193,8 +195,19 @@ class _ProcessDrawerPrintPlain(_ProcessDrawerBase):
         )
 
     def finish(self):
-        print 'Task {} finished'.format(self.task_name)
+        print '{}Task {} finished'.format('  ' * self.__class__._level, self.task_name)
+        self.__class__._level -= 1
 
+
+class _ProcessDrawerDummy(_ProcessDrawerBase):
+    def __init__(self, task_name, steps_count):
+        pass
+
+    def update(self, step_cur, step_name, step_description):
+        pass
+
+    def finish(self):
+        pass
 
 class _ProcessDrawerProgressBar(_ProcessDrawerBase):
     def __init__(self, task_name, steps_count):
@@ -226,11 +239,13 @@ class DrawProcess(_IProcessDrawer):
     class Strategy(IntEnum):
         PRINT_PLAIN = 0
         PROGRESS_BAR = 1
+        DUMMY = 2
 
     def __init__(self, task_name, steps_count, strategy=Strategy.PRINT_PLAIN):
         strategy_cls = {
             self.Strategy.PRINT_PLAIN: _ProcessDrawerPrintPlain,
             self.Strategy.PROGRESS_BAR: _ProcessDrawerProgressBar,
+            self.Strategy.DUMMY: _ProcessDrawerDummy,
         }[strategy]
 
         self._strategy = strategy_cls(task_name, steps_count)

@@ -1,14 +1,14 @@
 import os  # ,setacl, wget
 
 import os
-import logging
+import logger
 import operations_setacl as acl
 import shutil
 from operations_process_controller import RegController as regc, ReturnCode as rc
 
 from enum import Enum
 
-logger = logging.getLogger('io')
+_logger = logger.Logger().get_logger('operations_io')
 
 
 class RegValue(object):
@@ -119,7 +119,7 @@ class FilesystemOperator(IOOperatorBase):
         path = cls._normpath(str(path))
 
         if os.path.isdir(path):
-            logger.warning('{} Directory exists, skipping.'.format(path))
+            _logger.warning('{} Directory exists, skipping.'.format(path))
             return True
         if not subexec(path):
             if force:
@@ -130,9 +130,9 @@ class FilesystemOperator(IOOperatorBase):
                     subexec(path)
 
         if os.path.isdir(path):
-            logger.info('"{}" has been successfully created.'.format(path))
+            _logger.info('"{}" has been successfully created.'.format(path))
             return True
-        logger.info('"{}" Directory not created.'.format(path))
+        _logger.info('"{}" Directory not created.'.format(path))
         return False
 
     @classmethod
@@ -147,7 +147,7 @@ class FilesystemOperator(IOOperatorBase):
         path = cls._normpath(str(path))
 
         if not exists_func(path):
-            logger.warning('{} Directory not found, skipping.'.format(path))
+            _logger.warning('{} Directory not found, skipping.'.format(path))
             return True
         if not subexec(path):
             if force:
@@ -161,9 +161,9 @@ class FilesystemOperator(IOOperatorBase):
                         subexec(path)
 
         if not exists_func(path):
-            logger.info('"{}" has been successfully removed.'.format(path))
+            _logger.info('"{}" has been successfully removed.'.format(path))
             return True
-        logger.info('"{}" Directory not removed.'.format(path))
+        _logger.info('"{}" Directory not removed.'.format(path))
         return False
 
     @classmethod
@@ -205,8 +205,8 @@ class RegOperator(IOOperatorBase):
         return None
 
     @classmethod
-    def list(cls, path):
-        query1 = regc.query(path)
+    def list(cls, path, value=None):
+        query1 = regc.query(path, value)
         if not isinstance(query1, rc):
             return query1
         else:
@@ -237,9 +237,9 @@ class RegOperator(IOOperatorBase):
                         subexec(path, value, regtype, data)
 
         if cls.exists(path, value):
-            logger.info('"{} {}" has been successfully added.'.format(path, value))
+            _logger.info('"{} {}" has been successfully added.'.format(path, value))
             return True
-        logger.info('"{} {}" was not added.'.format(path, value))
+        _logger.info('"{} {}" was not added.'.format(path, value))
         return False
 
     @classmethod
@@ -261,7 +261,7 @@ class RegOperator(IOOperatorBase):
 
         path = cls._normpath(str(path))
         if not cls.exists(path, object):
-            logger.warning('{} Registry not found, skipping.'.format(path))
+            _logger.warning('{} Registry not found, skipping.'.format(path))
             return True
         if not subexec(path, object):
             if force:
@@ -275,9 +275,9 @@ class RegOperator(IOOperatorBase):
                         subexec(path, object)
 
         if not cls.exists(path, object):
-            logger.info('"{}" has been successfully removed.'.format(path))
+            _logger.info('"{}" has been successfully removed.'.format(path))
             return True
-        logger.info('"{}" Registry not removed.'.format(path))
+        _logger.info('"{}" Registry not removed.'.format(path))
         return False
 
     @classmethod

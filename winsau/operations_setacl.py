@@ -5,14 +5,14 @@
 # Distributed under MIT License
 #
 
-import logging
+import logger
 import os
 import subprocess
 from collections import defaultdict
 from enum import Enum
 # from config import config
 
-logger = logging.getLogger('SetACL')
+_logger = logger.Logger().get_logger('operations_setacl')
 # bin_path = config.get('setacl', 'bin_path', True) #todo
 BIN_PATH = 'SetACL64.exe'
 
@@ -448,10 +448,10 @@ class SetACL(object):
             preowner_acl.execute()
 
         for i, cmd in enumerate(cmds):
-            logger.debug('EXEC COMMAND "{}"'.format(cmd))
+            _logger.debug('EXEC COMMAND "{}"'.format(cmd))
             try:
                 subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-                logger.info('[{}/{}]"{}" ACL successfully changed.'
+                _logger.info('[{}/{}]"{}" ACL successfully changed.'
                     .format(
                     i + 1,
                     len(cmds),

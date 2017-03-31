@@ -1,11 +1,11 @@
 from csv_dictreader_extended import DictReaderExtended
-import logging
+import logger
 import os
 import subprocess
 
 from enum import Enum
+_logger = logger.Logger().get_logger('operations_process_controller')
 
-logger = logging.getLogger('ProcessControler')
 
 
 class ControllerException(Exception):
@@ -28,7 +28,7 @@ class ControllerBase(object):
     @classmethod
     def _execute(cls, parameters, filter=None):
         cmd = ' '.join((cls._BIN, parameters))
-        logger.debug('{} Exec:{}'.format(cls.__class__.__name__, cmd))
+        _logger.debug('{} Exec:{}'.format(cls.__class__.__name__, cmd))
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
 
@@ -463,8 +463,8 @@ class AttribController(ControllerBase):
     def attrib(cls, path, read_only=None, hidden=None, system=None, recursive=False):
         subparams = list()
         if not read_only is None: subparams.append('+r' if read_only else '-r')
-        if not hidden is None: subparams.append('+h' if hidden else '-h')
         if not system is None: subparams.append('+s' if system else '-s')
+        if not hidden is None: subparams.append('+h' if hidden else '-h')
         if recursive: subparams.append('/s /d')
 
         params = '{} "{}"'.format(' '.join(subparams), os.path.normpath(path))
@@ -498,3 +498,11 @@ class NetstatController(ControllerBase):
     def netstat(cls):
         params = '-ano'
         return cls._execute(params, cls._exec_filter_netstat)
+
+class PowerShellController(ControllerBase):
+    _BIN = 'powershell'
+
+    @classmethod
+    def command(cls, command):
+        params = '-executionpolicy bypass -command "{}"'.format(os.path.normpath(command))
+        return cls._execute(params, cls._exec_filter_bool)
