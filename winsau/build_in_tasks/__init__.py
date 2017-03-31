@@ -28,7 +28,12 @@ def create_single_tasks():
         description='Hide updates (updates)',
         task_type=TaskType.FRAMEWORK,
     )
-
+    TaskManager.create_single_task(
+        func=staticmethod(op_s.uninstall_updates),
+        name='uninstall_updates',
+        description='Uninstall updates (updates)',
+        task_type=TaskType.FRAMEWORK,
+    )
 
 
     TaskManager.create_single_task(
@@ -172,6 +177,12 @@ def create_single_tasks():
         func=op_pc.WUSAController.wusa_install,
         name='wusa_install',
         description='Install update (path)',
+        task_type=TaskType.FRAMEWORK,
+    )
+    TaskManager.create_single_task(
+        func=op_pc.WUSAController.wusa_uninstall,
+        name='wusa_uninstall',
+        description='Uninstall update (kbnumber)',
         task_type=TaskType.FRAMEWORK,
     )
 
