@@ -27,9 +27,9 @@ def ps_hide_updates(updates):
     ps0 = ps0.format(kbnumbers=','.join([str(i) for i in updates]))
     return PowerShellController.command(ps0)
 
-def uninstall_updates(data):
+def uninstall_updates(updates):
     int_update = lambda value: value if isinstance(value, int) else int(''.join([i for i in str(value) if i.isdigit()]))
-    int_updates = lambda value: [int_update(i) for i in data]
+    int_updates = lambda value: [int_update(i) for i in value]
     installed_updates = [int_update(i['HotFixID']) for i in WMIController.qfe_list()]
-    for update in [i for i in int_updates(data) if i in installed_updates]:
+    for update in [i for i in int_updates(updates) if i in installed_updates]:
         WUSAController.wusa_uninstall(update)
